@@ -1,0 +1,53 @@
+1. 필요한 것
+    - Spring validation 패키지
+    - Spring thymeleaf 패키지
+    - Bootstrap
+    ---
+
+2. 데이터 클래스의 각 필드에 어노테이션(@NotBlank) 추가
+~~~java
+import javax.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class UserForm {
+
+    // 공백을 허용하지 않음
+    @NotBlank
+    private String username;
+
+    // // 공백을 허용하지 않음
+    @NotBlank
+    private String password;
+}
+~~~
+
+---
+3. 메서드의 인수 앞에 @Validated 어노테이션을 추가하고, 바로 다음 인수에 BindingResult를 추가
+~~~java
+    @PostMapping
+    public String create(@Validated UserForm form, BindingResult bindingResult) {
+        // 유효성 체크에서 에러가 발생한다면
+        if (bindingResult.hasErrors()) {
+            // ... //
+        }
+        return "redirect:/users";
+    }
+~~~
+---
+4. 표시하는 html페이지에서 
+~~~html
+    <form th:object="${userForm}">
+        <input class="form-control" type="text" name="" 
+            th:field="*{username}" id="usernameInput" 
+            th:classappend="${#fields.hasErrors('username')} ? is-invalid">
+        <p class="invalid-feedback" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">
+            (errors)
+        </p>
+    </form>
+~~~
+ - form태그에는 th:object로 `${폼 이름}`을 지정 
+ - input태그에는 th:field로 폼의 속성을 `*{속성 이름}`으로 지정 
+ 
